@@ -22,7 +22,8 @@ import json
 import os
 import traceback
 from lagom import Container, Singleton
-from typing import AsyncIterator, Awaitable, Callable, Iterable, Sequence, cast
+from typing import Any, AsyncIterator, Awaitable, Callable, Iterable, Sequence, cast
+from pymongo import AsyncMongoClient
 import toml
 from typing_extensions import NoReturn
 import click
@@ -66,7 +67,7 @@ from parlant.core.guidelines import (
     GuidelineDocumentStore,
     GuidelineStore,
 )
-from parlant.adapters.db.json_file import JSONFileDocumentDatabase
+from parlant.adapters.db.mongo_db import MongoDocumentDatabase
 from parlant.core.nlp.embedding import EmbedderFactory
 from parlant.core.nlp.generation import SchematicGenerator
 from parlant.core.services.tools.service_registry import (
@@ -310,38 +311,42 @@ async def initialize_container(
 
     await c[BackgroundTaskService].start(c[WebSocketLogger].start(), tag="websocket-logger")
 
+    mongo_client = AsyncMongoClient[Any](
+        "mongodb+srv://guest:guess@cluster0.6q2ty.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
+
     agents_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "agents.json")
+        MongoDocumentDatabase(mongo_client, "agents", c[Logger])
     )
     context_variables_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "context_variables.json")
+        MongoDocumentDatabase(mongo_client, "context_variables", c[Logger])
     )
     tags_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "tags.json")
+        MongoDocumentDatabase(mongo_client, "tags", c[Logger])
     )
     customers_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "customers.json")
+        MongoDocumentDatabase(mongo_client, "customers", c[Logger])
     )
     sessions_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "sessions.json")
+        MongoDocumentDatabase(mongo_client, "sessions", c[Logger])
     )
     guidelines_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "guidelines.json")
+        MongoDocumentDatabase(mongo_client, "guidelines", c[Logger])
     )
     guideline_tool_associations_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "guideline_tool_associations.json")
+        MongoDocumentDatabase(mongo_client, "guideline_tool_associations", c[Logger])
     )
     guideline_connections_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "guideline_connections.json")
+        MongoDocumentDatabase(mongo_client, "guideline_connections", c[Logger])
     )
     evaluations_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "evaluations.json")
+        MongoDocumentDatabase(mongo_client, "evaluations", c[Logger])
     )
     services_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "services.json")
+        MongoDocumentDatabase(mongo_client, "services", c[Logger])
     )
     fragment_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(c[Logger], PARLANT_HOME_DIR / "fragments.json")
+        MongoDocumentDatabase(mongo_client, "fragments", c[Logger])
     )
 
     try:

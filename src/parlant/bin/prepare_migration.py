@@ -18,17 +18,18 @@ import importlib
 import json
 import os
 import shutil
-from typing import cast
+from typing import cast, Any
 import chromadb
 from chromadb.api.types import IncludeEnum
 from lagom import Container
+from pymongo import AsyncMongoClient
 from typing_extensions import NoReturn
 from pathlib import Path
 import sys
 import rich
 from rich.prompt import Confirm, Prompt
 
-from parlant.adapters.db.json_file import JSONFileDocumentDatabase
+from parlant.adapters.db.mongo_db import MongoDocumentDatabase
 from parlant.adapters.vector_db.chroma import ChromaDatabase
 from parlant.core.common import generate_id, md5_checksum
 from parlant.core.contextual_correlator import ContextualCorrelator
@@ -75,54 +76,57 @@ async def migrate() -> None:
     rich.print("[green]Starting migration process...")
 
     backup_data()
+    mongo_client = AsyncMongoClient[Any](
+        "mongodb+srv://guest:guess@cluster0.6q2ty.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
 
     agents_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "agents.json")
+        MongoDocumentDatabase(mongo_client, "agents", LOGGER)
     )
     await migrate_document_database(agents_db, "agents")
 
     context_variables_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "context_variables.json")
+        MongoDocumentDatabase(mongo_client, "context_variables", LOGGER)
     )
     await migrate_document_database(context_variables_db, "variables")
 
     tags_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "tags.json")
+        MongoDocumentDatabase(mongo_client, "tags", LOGGER)
     )
     await migrate_document_database(tags_db, "tags")
 
     customers_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "customers.json")
+        MongoDocumentDatabase(mongo_client, "customers", LOGGER)
     )
     await migrate_document_database(customers_db, "customers")
 
     sessions_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "sessions.json")
+        MongoDocumentDatabase(mongo_client, "sessions", LOGGER)
     )
     await migrate_document_database(sessions_db, "sessions")
 
     guideline_tool_associations_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "guideline_tool_associations.json")
+        MongoDocumentDatabase(mongo_client, "guideline_tool_associations", LOGGER)
     )
     await migrate_document_database(guideline_tool_associations_db, "associations")
 
     guidelines_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "guidelines.json")
+        MongoDocumentDatabase(mongo_client, "guidelines", LOGGER)
     )
     await migrate_document_database(guidelines_db, "guidelines")
 
     guideline_connections_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "guideline_connections.json")
+        MongoDocumentDatabase(mongo_client, "guideline_connections", LOGGER)
     )
     await migrate_document_database(guideline_connections_db, "guideline_connections")
 
     evaluations_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "evaluations.json")
+        MongoDocumentDatabase(mongo_client, "evaluations", LOGGER)
     )
     await migrate_document_database(evaluations_db, "evaluations")
 
     services_db = await EXIT_STACK.enter_async_context(
-        JSONFileDocumentDatabase(LOGGER, PARLANT_HOME_DIR / "services.json")
+        MongoDocumentDatabase(mongo_client, "services", LOGGER)
     )
     await migrate_document_database(services_db, "tool_services")
 
