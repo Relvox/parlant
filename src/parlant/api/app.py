@@ -22,7 +22,6 @@ from typing import (
     Callable,
     Optional,
     TypeAlias,
-    TypeVar,
 )
 from exceptiongroup import ExceptionGroup
 from typing_extensions import Self
@@ -50,6 +49,8 @@ from parlant.core.contextual_correlator import ContextualCorrelator
 from parlant.core.agents import AgentStore
 from parlant.core.common import ItemNotFoundError, generate_id
 from parlant.core.customers import CustomerStore
+from parlant.core.engines.alpha import guideline_matcher_test_api
+from parlant.core.engines.alpha.guideline_matcher import GuidelineMatcher
 from parlant.core.evaluations import EvaluationStore, EvaluationListener
 from parlant.core.utterances import UtteranceStore
 from parlant.core.relationships import RelationshipStore
@@ -236,7 +237,7 @@ async def configure_static_files(app: FastAPI, container: Container) -> AsyncIte
 
 @asynccontextmanager
 async def configure_legacy_agents(app: FastAPI, container: Container) -> AsyncIterator[FastAPI]:
-    agent_router = APIRouter(prefix="/agents")
+    agent_router = APIRouter()
 
     agent_router.include_router(
         guidelines.create_legacy_router(
@@ -262,7 +263,7 @@ async def configure_legacy_agents(app: FastAPI, container: Container) -> AsyncIt
         )
     )
 
-    app.include_router(agent_router)
+    app.include_router(agent_router, prefix="/agents")
     yield app
 
 
@@ -400,6 +401,26 @@ async def configure_logs_router(app: FastAPI, container: Container) -> AsyncIter
         websocket_logger=container[WebSocketLogger],
     )
     app.include_router(router)
+    yield app
+
+
+@asynccontextmanager
+async def configure_test_router(
+    app: FastAPI,
+    container: Container,
+) -> AsyncIterator[FastAPI]:
+    test_router_guideline_matching = (
+        guideline_matcher_test_api.create_test_guideline_matching_router(
+            guideline_matcher=container[GuidelineMatcher],
+            agent_store=container[AgentStore],
+            customer_store=container[CustomerStore],
+            context_variable_store=container[ContextVariableStore],
+            guideline_store=container[GuidelineStore],
+            glossary_store=container[GlossaryStore],
+            session_store=container[SessionStore],
+        )
+    )
+    app.include_router(test_router_guideline_matching, prefix="/test/alpha/guideline-matching")
     yield app
 
 
