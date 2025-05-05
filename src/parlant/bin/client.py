@@ -35,9 +35,13 @@ from rich.text import Text
 import sys
 from typing import Any, Callable, Iterator, Optional, OrderedDict, cast
 
+from parlant.api.common import RelationshipKindDTO
 from parlant.client import ParlantClient
 from parlant.client.core import ApiError
 from parlant.client.types import (
+    RelationshipKindDto,
+    GuidelineContent,
+    GuidelinePayload,
     Agent,
     AgentTagUpdateParams,
     ContextVariable,
@@ -51,9 +55,6 @@ from parlant.client.types import (
     JourneyConditionUpdateParams,
     Guideline,
     Relationship,
-    RelationshipKindDto,
-    GuidelinePayload,
-    GuidelineContent,
     GuidelineToolAssociation,
     GuidelineToolAssociationUpdateParams,
     GuidelineTagsUpdateParams,
@@ -1687,41 +1688,41 @@ class Interface:
 
             if iteration.guideline_matches:
                 for match in iteration.guideline_matches:
-                    rich.print(f"{INDENT*2}Condition: {match.condition}")
-                    rich.print(f"{INDENT*2}Action: {match.action}")
-                    rich.print(f"{INDENT*2}Relevance Score: {match.score}/10")
-                    rich.print(f"{INDENT*2}Rationale: {match.rationale}\n")
+                    rich.print(f"{INDENT * 2}Condition: {match.condition}")
+                    rich.print(f"{INDENT * 2}Action: {match.action}")
+                    rich.print(f"{INDENT * 2}Relevance Score: {match.score}/10")
+                    rich.print(f"{INDENT * 2}Rationale: {match.rationale}\n")
             else:
-                rich.print(f"{INDENT*2}(none)\n")
+                rich.print(f"{INDENT * 2}(none)\n")
 
             rich.print(Text(f"{INDENT}Tool Calls:", style="bold"))
 
             if iteration.tool_calls:
                 for tool_call in iteration.tool_calls:
-                    rich.print(f"{INDENT*2}Tool Id: {tool_call.tool_id}")
-                    rich.print(f"{INDENT*2}Arguments: {tool_call.arguments}")
-                    rich.print(f"{INDENT*2}Result: {tool_call.result}\n")
+                    rich.print(f"{INDENT * 2}Tool Id: {tool_call.tool_id}")
+                    rich.print(f"{INDENT * 2}Arguments: {tool_call.arguments}")
+                    rich.print(f"{INDENT * 2}Result: {tool_call.result}\n")
             else:
-                rich.print(f"{INDENT*2}(none)\n")
+                rich.print(f"{INDENT * 2}(none)\n")
 
             rich.print(Text(f"{INDENT}Context Variables:", style="bold"))
 
             if iteration.context_variables:
                 for variable in iteration.context_variables:
-                    rich.print(f"{INDENT*2}Name: {variable.name}")
-                    rich.print(f"{INDENT*2}Key: {variable.key}")
-                    rich.print(f"{INDENT*2}Value: {variable.value}\n")
+                    rich.print(f"{INDENT * 2}Name: {variable.name}")
+                    rich.print(f"{INDENT * 2}Key: {variable.key}")
+                    rich.print(f"{INDENT * 2}Value: {variable.value}\n")
             else:
-                rich.print(f"{INDENT*2}(none)\n")
+                rich.print(f"{INDENT * 2}(none)\n")
 
             rich.print(Text(f"{INDENT}Glossary Terms:", style="bold"))
 
             if iteration.terms:
                 for term in iteration.terms:
-                    rich.print(f"{INDENT*2}Name: {term.name}")
-                    rich.print(f"{INDENT*2}Description: {term.description}\n")
+                    rich.print(f"{INDENT * 2}Name: {term.name}")
+                    rich.print(f"{INDENT * 2}Description: {term.description}\n")
             else:
-                rich.print(f"{INDENT*2}(none)\n")
+                rich.print(f"{INDENT * 2}(none)\n")
 
     @staticmethod
     def _render_glossary(terms: list[Term]) -> None:
@@ -3747,7 +3748,7 @@ async def async_main() -> None:
         ctx: click.Context,
         source: str,
         target: str,
-        kind: RelationshipKindDto,
+        kind: RelationshipKindDTO,
     ) -> None:
         Interface.create_relationship(
             ctx=ctx,
@@ -3788,7 +3789,7 @@ async def async_main() -> None:
         id: Optional[str],
         source: Optional[str],
         target: Optional[str],
-        kind: Optional[RelationshipKindDto],
+        kind: Optional[RelationshipKindDTO],
     ) -> None:
         if id:
             if source or target or kind:
