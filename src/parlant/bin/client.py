@@ -35,13 +35,9 @@ from rich.text import Text
 import sys
 from typing import Any, Callable, Iterator, Optional, OrderedDict, cast
 
-from parlant.api.common import RelationshipKindDTO
 from parlant.client import ParlantClient
 from parlant.client.core import ApiError
 from parlant.client.types import (
-    RelationshipKindDto,
-    GuidelineContent,
-    GuidelinePayload,
     Agent,
     AgentTagUpdateParams,
     ContextVariable,
@@ -55,6 +51,9 @@ from parlant.client.types import (
     JourneyConditionUpdateParams,
     Guideline,
     Relationship,
+    RelationshipKindDto,
+    GuidelinePayload,
+    GuidelineContent,
     GuidelineToolAssociation,
     GuidelineToolAssociationUpdateParams,
     GuidelineTagsUpdateParams,
@@ -3748,7 +3747,7 @@ async def async_main() -> None:
         ctx: click.Context,
         source: str,
         target: str,
-        kind: RelationshipKindDTO,
+        kind: RelationshipKindDto,
     ) -> None:
         Interface.create_relationship(
             ctx=ctx,
@@ -3789,7 +3788,7 @@ async def async_main() -> None:
         id: Optional[str],
         source: Optional[str],
         target: Optional[str],
-        kind: Optional[RelationshipKindDTO],
+        kind: Optional[RelationshipKindDto],
     ) -> None:
         if id:
             if source or target or kind:
