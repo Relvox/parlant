@@ -198,7 +198,7 @@ async def get_matched_guidelines(
         json={
             "agent_id": agent_id,
             "customer_id": customer_id,
-            "events": event_ids,
+            "interaction_history": event_ids,
             "guidelines": guideline_ids,
             "context_variables": [],
             "terms": [],

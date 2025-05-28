@@ -16,7 +16,14 @@
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Annotated, TypeAlias
 
+from pydantic import Field
+
+
+from parlant.api.common import GuidelineIdField
+from parlant.api.sessions import GuidelineMatchRationaleField, GuidelineMatchScoreField, ToolIdField
+from parlant.core.common import DefaultBaseModel
 from parlant.core.guidelines import Guideline
 
 
@@ -35,3 +42,58 @@ class GuidelineMatch:
     guideline_previously_applied: PreviouslyAppliedType = PreviouslyAppliedType.NO
     guideline_is_continuous: bool = False
     should_reapply: bool = False
+
+
+GuidelinePreviouslyAppliedField: TypeAlias = Annotated[
+    PreviouslyAppliedType,
+    Field(
+        default=PreviouslyAppliedType.NO,
+        description="Status of the guideline's previous application.",
+        examples=[
+            PreviouslyAppliedType.NO,
+            PreviouslyAppliedType.PARTIALLY,
+            PreviouslyAppliedType.FULLY,
+            PreviouslyAppliedType.IRRELEVANT,
+        ],
+    ),
+]
+
+GuidelineIsContinuousField: TypeAlias = Annotated[
+    bool,
+    Field(
+        default=False,
+        description="Whether the guideline is continuous.",
+        examples=[True, False],
+    ),
+]
+
+GuidelineShouldReapplyField: TypeAlias = Annotated[
+    bool,
+    Field(
+        default=False,
+        description="Whether the guideline should be reapplied.",
+        examples=[True, False],
+    ),
+]
+
+guideline_match_dto_example = {
+    "guideline_id": "123xyz",
+    "score": "9",
+    "rationale": "customer asks for weather today",
+    "guideline_previously_applied": "no",
+    "guideline_is_continuous": "False",
+    "should_reapply": "False",
+}
+
+
+class GuidelineMatchDTO(
+    DefaultBaseModel,
+    json_schema_extra={"example": guideline_match_dto_example},
+):
+    guideline_id: GuidelineIdField
+    score: GuidelineMatchScoreField
+    rationale: GuidelineMatchRationaleField
+    guideline_previously_applied: GuidelinePreviouslyAppliedField
+    guideline_is_continuous: GuidelineIsContinuousField
+    should_reapply: GuidelineShouldReapplyField
+    associated_tool_ids: list[ToolIdField]
