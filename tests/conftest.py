@@ -25,7 +25,12 @@ import pytest
 from parlant.adapters.loggers.websocket import WebSocketLogger
 from parlant.adapters.nlp.openai_service import OpenAIService
 from parlant.adapters.vector_db.transient import TransientVectorDatabase
-from parlant.api.app import create_api_app, ASGIApplication
+from parlant.api.app import (
+    APIConfigurationSteps,
+    create_api_app,
+    ASGIApplication,
+    default_configuration_steps,
+)
 from parlant.core.background_tasks import BackgroundTaskService
 from parlant.core.contextual_correlator import ContextualCorrelator
 from parlant.core.context_variables import ContextVariableDocumentStore, ContextVariableStore
@@ -388,6 +393,8 @@ async def container(
         container[Engine] = Singleton(AlphaEngine)
 
         container[Application] = Application(container)
+
+        container[APIConfigurationSteps] = default_configuration_steps
 
         yield container
 
